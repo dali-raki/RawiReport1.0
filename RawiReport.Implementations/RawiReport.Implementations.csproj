@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RawiReport.Apps\RawiReport.Apps.csproj" />
+    <ProjectReference Include="..\RawiReport.Domains\RawiReport.Domains.csproj" />
+    <ProjectReference Include="..\RawiReport.Infrastructures\RawiReport.Infrastructures.csproj" />
+  </ItemGroup>
+
+</Project>

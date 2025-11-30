@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/App/">
+    <Project Path="RawiReport.Apps/RawiReport.Apps.csproj" />
+  </Folder>
+  <Folder Name="/Domains/">
+    <Project Path="RawiReport.Domains/RawiReport.Domains.csproj" />
+  </Folder>
+  <Folder Name="/Implementation/">
+    <Project Path="RawiReport.Implementations/RawiReport.Implementations.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="RawiReport.Infrastructures/RawiReport.Infrastructures.csproj" />
+  </Folder>
+  <Project Path="RawiReport/RawiReport.csproj" />
+  <Project Path="RawiReportUI/RawiReportUI.csproj" Id="f0b53761-3776-4c70-b609-b600a0116ebb" />
+</Solution>

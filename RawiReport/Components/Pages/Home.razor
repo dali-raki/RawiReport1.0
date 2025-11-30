@@ -1,0 +1,28 @@
+﻿@page "/"
+@using RawiReport.Apps.Apps.MachinesApps
+@using RawiReport.Domains.Models.Machines
+@using RawiReportUI.Components.Basics.Input
+
+<PageTitle>Home</PageTitle>
+<div>
+
+    <h3>Test Page</h3>
+    <p>This is a test page for RawiReport.</p>
+
+
+    <div>
+        @foreach (var item in x)
+        {
+            <div>Item @item.MachineId /@item.MachineName</div>
+        }
+    </div>
+</div>
+@code{
+    [Inject] private IMachinesServices machinesServices { get; set; }
+    List<MachineModel> x = new();
+
+    override protected async Task OnInitializedAsync()
+    {
+        x = await machinesServices.GetMachines();
+    }
+}
