@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RawiReport.Domains.Models.Breackdowns;
+namespace RawiReport.Apps.Apps.BreackdownsApps;
 
-public class BreackdownModel
+public class BreackdownInfo
 {
-    public Guid Id { get; set; }
+    public Guid BreakdownId { get; set; }
     public Guid ReportId { get; set; }
     public int MachineId { get; set; }
+    public string MachineName { get; set; }
     public DateTime StoppingTime { get; set; }
     public string DurationStopping { get; set; }
     public long ErrorCode { get; set; }

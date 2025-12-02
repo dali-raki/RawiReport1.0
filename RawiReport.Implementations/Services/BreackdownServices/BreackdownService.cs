@@ -22,4 +22,29 @@ public class BreackdownService(IBreackdownStorage breackdownStorage) : IBreackdo
         }
 
     }
+
+
+    public async ValueTask<int> SetBreakdown(BreackdownModel model)
+    {
+        try
+        {
+            return await breackdownStorage.UpdateBreakdown(model);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+    public async ValueTask<int> RemoveBreakdown(Guid id)
+    {
+        try
+        {
+            return await breackdownStorage.DeleteBreakdown(id);
+        }
+        catch (Exception)
+        {
+            throw;
+
+        }
+    }
 }

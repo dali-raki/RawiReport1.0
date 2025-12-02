@@ -2,6 +2,9 @@
   <Folder Name="/App/">
     <Project Path="RawiReport.Apps/RawiReport.Apps.csproj" />
   </Folder>
+  <Folder Name="/Base/">
+    <File Path="bd" />
+  </Folder>
   <Folder Name="/Domains/">
     <Project Path="RawiReport.Domains/RawiReport.Domains.csproj" />
   </Folder>

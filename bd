@@ -1,0 +1,134 @@
+USE [rawireport]
+GO
+/****** Object:  Schema [report]    Script Date: 12/2/2025 3:37:49 PM ******/
+CREATE SCHEMA [report]
+GO
+/****** Object:  Table [dbo].[ErrorCode]    Script Date: 12/2/2025 3:37:49 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ErrorCode](
+	[Id] [bigint] NOT NULL,
+	[Code] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_ErrorCode] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Machine]    Script Date: 12/2/2025 3:37:49 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Machine](
+	[Id] [int] NOT NULL,
+	[Name] [varchar](max) NOT NULL,
+ CONSTRAINT [PK_Machine] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [report].[Breakdown]    Script Date: 12/2/2025 3:37:49 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [report].[Breakdown](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ReportId] [uniqueidentifier] NOT NULL,
+	[MachineId] [int] NOT NULL,
+	[StoppingTime] [time](0) NOT NULL,
+	[StoppingDuration] [int] NOT NULL,
+	[ErrorCode] [bigint] NOT NULL,
+	[Description] [varchar](max) NOT NULL,
+ CONSTRAINT [PK_Breakdown] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC,
+	[ReportId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [report].[Header]    Script Date: 12/2/2025 3:37:49 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [report].[Header](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ProductId] [uniqueidentifier] NOT NULL,
+	[Date] [date] NOT NULL,
+	[StartTime] [time](0) NOT NULL,
+	[EndTime] [time](0) NOT NULL,
+	[Objective] [varchar](50) NOT NULL,
+	[Speed] [varchar](50) NOT NULL,
+	[CreateBy] [varchar](50) NOT NULL,
+	[CreateAt] [datetime] NOT NULL,
+	[UpdateLast] [datetime] NOT NULL,
+	[State] [int] NOT NULL,
+ CONSTRAINT [PK_Header] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (1, N'compresseur r40 bar')
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (2, N'compresseur 8 bar')
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (3, N'souffleuse (Immopet Blowox 12L)')
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (4, N'Remplisseuse (Immofill)')
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (5, N'Immocheck')
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (6, N'Etiqueteuse (Immovet meo)')
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (7, N'fardeleuse (Immopacha Krister SP)')
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (8, N'Poigneuse (Immopack krister SM)')
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (9, N'Palettiseur (Immopal)')
+GO
+INSERT [dbo].[Machine] ([Id], [Name]) VALUES (10, N'Banderelouse (Robo pack)')
+GO
+ALTER TABLE [report].[Breakdown]  WITH CHECK ADD  CONSTRAINT [FK_Breakdown_Header] FOREIGN KEY([ReportId])
+REFERENCES [report].[Header] ([Id])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+GO
+ALTER TABLE [report].[Breakdown] CHECK CONSTRAINT [FK_Breakdown_Header]
+GO
+/****** Object:  StoredProcedure [report].[GetById]    Script Date: 12/2/2025 3:37:50 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROC [report].[GetById]
+    @aId UNIQUEIDENTIFIER
+AS
+BEGIN
+    -- Get the report info
+    SELECT 
+        *
+    FROM report.header
+    WHERE Id = @aId;
+
+    -- Get the breakdowns for this report
+    SELECT
+        b.Id AS BreakdownId,
+        b.ReportId,
+        b.MachineId,
+        m.Name AS MachineName,
+        b.StoppingTime,
+        b.StoppingDuration,
+        b.ErrorCode,
+        b.[Description]
+    FROM report.Breakdown b
+    INNER JOIN report.header r ON r.Id = b.ReportId
+    INNER JOIN Machine m ON m.Id = b.MachineId
+    WHERE r.Id = @aId;
+END
+GO

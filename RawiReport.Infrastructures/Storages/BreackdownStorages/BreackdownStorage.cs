@@ -13,25 +13,65 @@ public class BreackdownStorage(IConfiguration configuration) : IBreackdownStorag
 {
     private readonly string _connectionString = configuration.GetConnectionString("RawiReportDatabase") ?? throw new InvalidOperationException($"Connection string is missing or empty.");
 
-    private readonly string InsertBreackdownQuery = "  INSERT INTO Breakdown (Id,IdReport, IdMachine, StoppingTime, DurationStopping, Description) VALUES (@aId,@aIdReport, @aIdMachine, @aStoppingTime, @aDurationStopping, @aDescription);";
+    private readonly string InsertBreackdownQuery = @"INSERT INTO report.Breakdown (Id,ReportId,MachineId,StoppingTime,StoppingDuration,ErrorCode,[Description])
+        VALUES(@aId,@aReportId,@aMachineId,@aStoppingTime,@aStoppingDuration,@aErrorCode,@aDescription)";
 
+    private readonly string UpdateBreackdownQuery = @"UPDATE report.Breakdown
+        SET MachineId = @aMachineId, StoppingTime = @aStoppingTime,StoppingDuration = @SatoppingDuration, ErrorCode = @aErrorCode,Description = @aDescription
+        WHERE Id = @aId";
 
-    public async ValueTask<bool> InsertAsync(BreackdownModel model)
+    private readonly string DeleteBreackdownQuery = @"DELETE FROM report.Breakdown
+        WHERE Id = @aId";
+    public async ValueTask<bool> InsertBreackdown(BreackdownModel model)
     {
         using SqlConnection con = new(_connectionString);
         using SqlCommand cmd = new(InsertBreackdownQuery, con);
-     
 
-        cmd.Parameters.AddWithValue("@IdReport", model.ReportId);
-        cmd.Parameters.AddWithValue("@IdMachine", model.MachineId);
-        cmd.Parameters.AddWithValue("@StoppingTime", model.StoppingTime);
-        cmd.Parameters.AddWithValue("@DurationStopping", model.DurationStopping);
-        cmd.Parameters.AddWithValue("@Description", model.Description);
+        cmd.Parameters.AddWithValue("@aId", model.Id);
+        cmd.Parameters.AddWithValue("@aIdReport", model.ReportId);
+        cmd.Parameters.AddWithValue("@aIdMachine", model.MachineId);
+        cmd.Parameters.AddWithValue("@aStoppingTime", model.StoppingTime);
+        cmd.Parameters.AddWithValue("@aDurationStopping", model.DurationStopping);
+        cmd.Parameters.AddWithValue("@aDurationStopping", model.ErrorCode);
+        cmd.Parameters.AddWithValue("@aDescription", model.Description);
 
         await con.OpenAsync();
         object? result = await cmd.ExecuteScalarAsync();
 
         return true;
     }
+
+
+    public async ValueTask<int> UpdateBreakdown(BreackdownModel model)
+    {
+        using SqlConnection con = new(_connectionString);
+        using SqlCommand cmd = new(UpdateBreackdownQuery, con);
+
+        cmd.Parameters.AddWithValue("@aId", model.Id);
+        cmd.Parameters.AddWithValue("@aMachineId", model.MachineId);
+        cmd.Parameters.AddWithValue("@aStoppingTime", model.StoppingTime);
+        cmd.Parameters.AddWithValue("@aStoppingDuration", model.DurationStopping);
+        cmd.Parameters.AddWithValue("@aErrorCode", model.ErrorCode);
+        cmd.Parameters.AddWithValue("@aDescription", model.Description ?? (object)DBNull.Value);
+
+        await con.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync();
+    }
+
+
+
+    public async ValueTask<int> DeleteBreakdown(Guid id)
+    {
+        using SqlConnection con = new(_connectionString);
+        using SqlCommand cmd = new(DeleteBreackdownQuery, con);
+
+        cmd.Parameters.AddWithValue("@aId", id);
+
+        await con.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync();
+    }
+
+
+
 
 }

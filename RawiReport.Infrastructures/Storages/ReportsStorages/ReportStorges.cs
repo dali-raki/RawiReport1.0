@@ -1,0 +1,179 @@
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using RawiReport.Apps.Apps.BreackdownsApps;
+using RawiReport.Apps.Apps.ReportApps;
+using RawiReport.Domains.Models.Breackdowns;
+using RawiReport.Domains.Models.Reports;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Text;
+
+namespace RawiReport.Infrastructures.Storages.ReportsStorages;
+
+public class ReportStorges(IConfiguration configuration) : IReportStorages
+{
+    private readonly string connectionString = configuration.GetConnectionString("RawiReportDatabase") ?? "";
+
+
+
+
+    private const string SelectAllQuery = @"SELECT *FROM report.Header;";
+
+
+    private const string InsertHeaderQuery = @"INSERT INTO report.Header
+        (Id,ProductId,Date,StartTime,EndTime,Objective,Speed,CreateBy,CreateAt,UpdateLast,State)
+        VALUES(@aId,@aProductId,@aDate,@aStartTime,@aEndTime,@aObjective,@aSpeed,@aCreateBy,@aCreateAt,@aUpdateLast,@aState);";
+
+
+    private const string UpdateHeaderQuery = @"UPDATE report.Header 
+        SETProductId = @aProductId,Date = @aDate,StartTime = @aStartTime,EndTime = @aEndTime,
+        Objective = @aObjective,Speed = @aSpeed,CreateBy = @aCreateBy,UpdateLast = @aUpdateLast,State = @aState
+        WHERE Id = @aId;";
+
+    private const string DeleteHeaderQuery = @"DELETE FROM report.Header
+        WHERE Id = @aId;";
+
+    private const string getByUdProc = "sp_GetReportById";
+
+
+
+    public async ValueTask<ReportInfo> SelectById(Guid id)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await using var command = new SqlCommand(getByUdProc, connection);
+        command.CommandType = CommandType.StoredProcedure;
+
+        // Add the parameter
+        command.Parameters.AddWithValue("@aId", id);
+
+        await connection.OpenAsync();
+
+        // Use DataSet to handle multiple result sets
+        DataSet ds = new DataSet();
+        SqlDataAdapter da = new SqlDataAdapter(command);
+        da.Fill(ds);
+
+        // First table: report header
+        var reportTable = ds.Tables[0];
+        var report = new ReportInfo();
+
+        if (reportTable.Rows.Count > 0)
+        {
+            var row = reportTable.Rows[0];
+            report.Id = (Guid)row["Id"];
+            report.ProductId = (Guid)row["ProductId"];
+            report.Date = (DateOnly)row["Date"];
+            // Map other header columns here
+        }
+
+        // Second table: breakdowns
+        var breakdownTable = ds.Tables[1];
+        report.Breackdowns = new List<BreackdownInfo>();
+
+        foreach (DataRow row in breakdownTable.Rows)
+        {
+            var breakdown = new BreackdownInfo
+            {
+                BreakdownId = (Guid)row["BreakdownId"],
+                ReportId = (Guid)row["ReportId"],
+                MachineId = (int)row["MachineId"],
+                MachineName = (string) row["MachineName"],
+                StoppingTime = (DateTime)row["StoppingTime"],
+                DurationStopping = (string)row["StoppingDuration"],
+                ErrorCode = Convert.ToInt32(row["ErrorCode"]),
+                Description = (string) row["Description"]
+            };
+            report.Breackdowns.Add(breakdown);
+        }
+
+        return report;
+    }
+  
+    public async ValueTask<List<ReportHeaderModel>> SelectAllReportHeader()
+    {
+        using SqlConnection con = new(connectionString);
+        using SqlCommand cmd = new(SelectAllQuery, con);
+
+        await con.OpenAsync();
+        using SqlDataReader reader = await cmd.ExecuteReaderAsync();
+
+        List<ReportHeaderModel> list = new();
+        while (await reader.ReadAsync())
+            list.Add(MapHeader(reader));
+
+        return list;
+    }
+
+    public async ValueTask<int> InsertReportHeader(ReportHeaderModel model)
+    {
+        using SqlConnection con = new(connectionString);
+        using SqlCommand cmd = new(InsertHeaderQuery, con);
+
+        cmd.Parameters.AddWithValue("@aId", model.Id);
+        cmd.Parameters.AddWithValue("@aProductId", model.ProductId);
+        cmd.Parameters.AddWithValue("@aDate", model.Date);
+        cmd.Parameters.AddWithValue("@aStartTime", model.StartTime);
+        cmd.Parameters.AddWithValue("@aEndTime", model.EndTime);
+        cmd.Parameters.AddWithValue("@aObjective", model.Objective);
+        cmd.Parameters.AddWithValue("@aSpeed", model.Speed);
+        cmd.Parameters.AddWithValue("@aCreateBy", model.CreateBy);
+        cmd.Parameters.AddWithValue("@aCreateAt", model.CreatedAt);
+        cmd.Parameters.AddWithValue("@aUpdateLast", model.Updatlast);
+        cmd.Parameters.AddWithValue("@aState", model.ReportStatus);
+
+        await con.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync();
+    }
+
+    public async ValueTask<int> UpdateReportHeader(ReportHeaderModel model)
+    {
+        using SqlConnection con = new(connectionString);
+        using SqlCommand cmd = new(UpdateHeaderQuery, con);
+
+        cmd.Parameters.AddWithValue("@aId", model.Id);
+        cmd.Parameters.AddWithValue("@aProductId", model.ProductId);
+        cmd.Parameters.AddWithValue("@aDate", model.Date);
+        cmd.Parameters.AddWithValue("@aStartTime", model.StartTime);
+        cmd.Parameters.AddWithValue("@aEndTime", model.EndTime);
+        cmd.Parameters.AddWithValue("@aObjective", model.Objective);
+        cmd.Parameters.AddWithValue("@aSpeed", model.Speed);
+        cmd.Parameters.AddWithValue("@aCreateBy", model.CreateBy);
+        cmd.Parameters.AddWithValue("@aUpdateLast", model.Updatlast);
+        cmd.Parameters.AddWithValue("@aState", model.ReportStatus);
+
+        await con.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync();
+    }
+
+    public async ValueTask<int> DeleteReportHeader(Guid id)
+    {
+        using SqlConnection con = new(connectionString);
+        using SqlCommand cmd = new(DeleteHeaderQuery, con);
+
+        cmd.Parameters.AddWithValue("@aId", id);
+
+        await con.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync();
+    }
+
+
+
+    private ReportHeaderModel MapHeader(SqlDataReader r)
+    {
+        return new ReportHeaderModel
+        {
+            Id = (Guid)r["Id"],
+            ProductId = (Guid)r["ProductId"],
+            Date = DateOnly.FromDateTime((DateTime)r["Date"]),
+            StartTime = (TimeSpan)r["StartTime"],
+            EndTime = (TimeSpan)r["EndTime"],
+            Objective = (string)r["Objective"],
+            Speed = (int)r["Speed"],
+            CreateBy = (Guid)r["CreateBy"],
+            CreatedAt = (DateTime)r["CreateAt"],
+            Updatlast = (DateTime)r["UpdateLast"],
+            ReportStatus = (ReportStatus)(int)r["State"]
+        };
+    }
+}
