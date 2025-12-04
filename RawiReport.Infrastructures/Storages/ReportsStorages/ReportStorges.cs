@@ -11,14 +11,14 @@ using System.Text;
 
 namespace RawiReport.Infrastructures.Storages.ReportsStorages;
 
-public class ReportStorges(IConfiguration configuration) : IReportStorages
+public class ReportStorages(IConfiguration configuration) : IReportStorages
 {
     private readonly string connectionString = configuration.GetConnectionString("RawiReportDatabase") ?? "";
 
 
 
 
-    private const string SelectAllQuery = @"SELECT *FROM report.Header;";
+    private const string SelectAllQuery = @"SELECT * FROM report.Header WHERE State = @aState ORDER BY CreateAt DESC;";
 
 
     private const string InsertHeaderQuery = @"INSERT INTO report.Header
@@ -38,62 +38,64 @@ public class ReportStorges(IConfiguration configuration) : IReportStorages
 
 
 
-    public async ValueTask<ReportInfo> SelectById(Guid id)
-    {
-        await using var connection = new SqlConnection(connectionString);
-        await using var command = new SqlCommand(getByUdProc, connection);
-        command.CommandType = CommandType.StoredProcedure;
+    /* public async ValueTask<ReportInfo> SelectById(Guid id)
+     {
+         await using var connection = new SqlConnection(connectionString);
+         await using var command = new SqlCommand(getByUdProc, connection);
+         command.CommandType = CommandType.StoredProcedure;
 
-        // Add the parameter
-        command.Parameters.AddWithValue("@aId", id);
+         // Add the parameter
+         command.Parameters.AddWithValue("@aId", id);
 
-        await connection.OpenAsync();
+         await connection.OpenAsync();
 
-        // Use DataSet to handle multiple result sets
-        DataSet ds = new DataSet();
-        SqlDataAdapter da = new SqlDataAdapter(command);
-        da.Fill(ds);
+         // Use DataSet to handle multiple result sets
+         DataSet ds = new DataSet();
+         SqlDataAdapter da = new SqlDataAdapter(command);
+         da.Fill(ds);
 
-        // First table: report header
-        var reportTable = ds.Tables[0];
-        var report = new ReportInfo();
+         // First table: report header
+         var reportTable = ds.Tables[0];
+         var report = new ReportInfo();
 
-        if (reportTable.Rows.Count > 0)
-        {
-            var row = reportTable.Rows[0];
-            report.Id = (Guid)row["Id"];
-            report.ProductId = (Guid)row["ProductId"];
-            report.Date = (DateOnly)row["Date"];
-            // Map other header columns here
-        }
+         if (reportTable.Rows.Count > 0)
+         {
+             var row = reportTable.Rows[0];
+             report.Id = (Guid)row["Id"];
+             report.ProductId = (Guid)row["ProductId"];
+             report.Date = (DateOnly)row["Date"];
+             // Map other header columns here
+         }
 
-        // Second table: breakdowns
-        var breakdownTable = ds.Tables[1];
-        report.Breackdowns = new List<BreackdownInfo>();
+         // Second table: breakdowns
+         var breakdownTable = ds.Tables[1];
+         report.Breakdowns = new List<BreackdownInfo>();
 
-        foreach (DataRow row in breakdownTable.Rows)
-        {
-            var breakdown = new BreackdownInfo
-            {
-                BreakdownId = (Guid)row["BreakdownId"],
-                ReportId = (Guid)row["ReportId"],
-                MachineId = (int)row["MachineId"],
-                MachineName = (string) row["MachineName"],
-                StoppingTime = (DateTime)row["StoppingTime"],
-                DurationStopping = (string)row["StoppingDuration"],
-                ErrorCode = Convert.ToInt32(row["ErrorCode"]),
-                Description = (string) row["Description"]
-            };
-            report.Breackdowns.Add(breakdown);
-        }
+         foreach (DataRow row in breakdownTable.Rows)
+         {
+             var breakdown = new BreackdownInfo
+             {
+                 BreakdownId = (Guid)row["BreakdownId"],
+                 ReportId = (Guid)row["ReportId"],
+                 MachineId = (int)row["MachineId"],
+                 MachineName = (string) row["MachineName"],
+                 StoppingTime = (DateTime)row["StoppingTime"],
+                 DurationStopping = (string)row["StoppingDuration"],
+                 ErrorCode = Convert.ToInt32(row["ErrorCode"]),
+                 Description = (string) row["Description"]
+             };
+             report.Breackdowns.Add(breakdown);
+         }
 
-        return report;
-    }
-  
-    public async ValueTask<List<ReportHeaderModel>> SelectAllReportHeader()
+         return report;
+     }*/
+
+    public async ValueTask<List<ReportHeaderModel>> SelectAllReportHeader(ReportStatus status)
     {
         using SqlConnection con = new(connectionString);
         using SqlCommand cmd = new(SelectAllQuery, con);
+
+        cmd.Parameters.AddWithValue("@aState", status);
 
         await con.OpenAsync();
         using SqlDataReader reader = await cmd.ExecuteReaderAsync();
@@ -113,7 +115,7 @@ public class ReportStorges(IConfiguration configuration) : IReportStorages
         cmd.Parameters.AddWithValue("@aId", model.Id);
         cmd.Parameters.AddWithValue("@aProductId", model.ProductId);
         cmd.Parameters.AddWithValue("@aDate", model.Date);
-        cmd.Parameters.AddWithValue("@aStartTime", model.StartTime);
+        cmd.Parameters.AddWithValue("@aStartTime", model.StartTime.ToString(@"hh\:mm"));
         cmd.Parameters.AddWithValue("@aEndTime", model.EndTime);
         cmd.Parameters.AddWithValue("@aObjective", model.Objective);
         cmd.Parameters.AddWithValue("@aSpeed", model.Speed);
@@ -164,7 +166,7 @@ public class ReportStorges(IConfiguration configuration) : IReportStorages
         return new ReportHeaderModel
         {
             Id = (Guid)r["Id"],
-            ProductId = (Guid)r["ProductId"],
+            ProductId = (string)r["ProductId"],
             Date = DateOnly.FromDateTime((DateTime)r["Date"]),
             StartTime = (TimeSpan)r["StartTime"],
             EndTime = (TimeSpan)r["EndTime"],
@@ -173,7 +175,7 @@ public class ReportStorges(IConfiguration configuration) : IReportStorages
             CreateBy = (Guid)r["CreateBy"],
             CreatedAt = (DateTime)r["CreateAt"],
             Updatlast = (DateTime)r["UpdateLast"],
-            ReportStatus = (ReportStatus)(int)r["State"]
+            ReportStatus = (ReportStatus)( (int)r["State"])
         };
     }
 }

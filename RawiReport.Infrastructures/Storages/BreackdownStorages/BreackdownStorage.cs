@@ -28,11 +28,11 @@ public class BreackdownStorage(IConfiguration configuration) : IBreackdownStorag
         using SqlCommand cmd = new(InsertBreackdownQuery, con);
 
         cmd.Parameters.AddWithValue("@aId", model.Id);
-        cmd.Parameters.AddWithValue("@aIdReport", model.ReportId);
-        cmd.Parameters.AddWithValue("@aIdMachine", model.MachineId);
+        cmd.Parameters.AddWithValue("@aReportId", model.ReportId);
+        cmd.Parameters.AddWithValue("@aMachineId", model.MachineId);
         cmd.Parameters.AddWithValue("@aStoppingTime", model.StoppingTime);
-        cmd.Parameters.AddWithValue("@aDurationStopping", model.DurationStopping);
-        cmd.Parameters.AddWithValue("@aDurationStopping", model.ErrorCode);
+        cmd.Parameters.AddWithValue("@aStoppingDuration", model.DurationStopping);
+        cmd.Parameters.AddWithValue("@aErrorCode", model.ErrorCode);
         cmd.Parameters.AddWithValue("@aDescription", model.Description);
 
         await con.OpenAsync();

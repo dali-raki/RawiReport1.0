@@ -1,0 +1,130 @@
+﻿@page "/reports"
+@using RawiReport.Domains.Models.Reports
+@rendermode InteractiveServer
+
+<div class=" mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg space-y-6">
+
+    <!-- Header -->
+    <div class="">
+        <h1 class="text-2xl font-bold text-gray-800">Report Active</h1>
+
+        <a href="/report-create"
+           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+            + Create New Report
+        </a>
+        @if (ReportsActive == null)
+        {
+            <p class="text-gray-600 text-sm">Loading reports...</p>
+        }
+        else if (ReportsActive.Count == 0)
+        {
+            <p class="text-gray-600 text-sm">No reports found.</p>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full border rounded-lg shadow-sm text-sm">
+                    <thead class="bg-gray-100 text-gray-700">
+                        <tr>
+                            <th class="px-4 py-2 text-left">Date</th>
+                            <th class="px-4 py-2 text-left">Start</th>
+                            <th class="px-4 py-2 text-left">End</th>
+                            <th class="px-4 py-2 text-left">Speed</th>
+                            <th class="px-4 py-2 text-left">Format</th>
+                            <th class="px-4 py-2 text-left">Objective</th>
+                            <th class="px-4 py-2 text-left">Status</th>
+                            <th class="px-4 py-2 text-left">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var report in ReportsActive)
+                        {
+                            <tr class="border-b hover:bg-gray-50">
+
+                                <td class="px-4 py-2">@report.Date</td>
+                                <td class="px-4 py-2">@report.StartTime</td>
+                                <td class="px-4 py-2">@report.EndTime</td>
+                                <td class="px-4 py-2">@report.Speed</td>
+                                <td class="px-4 py-2">@report.ProductId</td>
+                                <td class="px-4 py-2">''
+                                    @(string.IsNullOrWhiteSpace(report.Objective)
+                                                                ? $"Report {report.Id.ToString().Substring(0, 8)}"
+                                                                : report.Objective)
+                                </td>
+                                <td class="px-4 py-2">@report.ReportStatus</td>
+
+                                <td class="px-4 py-2">
+                                    <button type="button" @onclick="@(() => n(report.Id))">View</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>
+
+
+<div class=" mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg space-y-6">
+
+    <!-- Header -->
+    <div class="">
+        <h1 class="text-2xl font-bold text-gray-800">Report InActive</h1>
+
+    <!-- Content -->
+    @if (ReportsInActive == null)
+    {
+        <p class="text-gray-600 text-sm">Loading reports...</p>
+    }
+    else if (ReportsInActive.Count == 0)
+    {
+        <p class="text-gray-600 text-sm">No reports found.</p>
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="w-full border rounded-lg shadow-sm text-sm">
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Date</th>
+                        <th class="px-4 py-2 text-left">Start</th>
+                        <th class="px-4 py-2 text-left">End</th>
+                        <th class="px-4 py-2 text-left">Speed</th>
+                        <th class="px-4 py-2 text-left">Format</th>
+                        <th class="px-4 py-2 text-left">Objective</th>
+                        <th class="px-4 py-2 text-left">Status</th>
+                        <th class="px-4 py-2 text-left">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var report in ReportsInActive)
+                    {
+                        <tr class="border-b hover:bg-gray-50">
+
+                            <td class="px-4 py-2">@report.Date</td>
+                            <td class="px-4 py-2">@report.StartTime</td>
+                            <td class="px-4 py-2">@report.EndTime</td>
+                            <td class="px-4 py-2">@report.Speed</td>
+                            <td class="px-4 py-2">@report.ProductId</td>
+                            <td class="px-4 py-2">
+                                @(string.IsNullOrWhiteSpace(report.Objective)
+                                                        ? $"Report {report.Id.ToString().Substring(0, 8)}"
+                                                        : report.Objective)
+                            </td>
+                            <td class="px-4 py-2">@report.ReportStatus</td>
+
+                            <td class="px-4 py-2">
+                                <button type="button" @onclick="@(() => n(report.Id))">View</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+</div>

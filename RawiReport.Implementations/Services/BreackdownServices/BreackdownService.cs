@@ -10,7 +10,7 @@ namespace RawiReport.Implementations.Services.BreackdownServices;
 public class BreackdownService(IBreackdownStorage breackdownStorage) : IBreackdownService
 {
 
-    public async ValueTask<bool> SetBreackdown(BreackdownModel model)
+    public async ValueTask<bool> CreateBreakdown(BreackdownModel model)
     {
          try
         {

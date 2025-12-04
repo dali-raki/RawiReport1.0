@@ -6,8 +6,9 @@ namespace RawiReport.Domains.Models.Reports
 {
     public enum ReportStatus
     {
-        validated,
-        pending,
+        Enabled = 1,
+        Disabled = 0,
+       
 
     }
 }

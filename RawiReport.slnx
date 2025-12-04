@@ -16,4 +16,5 @@
   </Folder>
   <Project Path="RawiReport/RawiReport.csproj" />
   <Project Path="RawiReportUI/RawiReportUI.csproj" Id="f0b53761-3776-4c70-b609-b600a0116ebb" />
+  <Project Path="RazorClassLibrary1/RazorClassLibrary1.csproj" Id="afd00699-cc92-47bb-93e6-60cda04af955" />
 </Solution>
