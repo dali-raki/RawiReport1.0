@@ -15,8 +15,8 @@ public class ReportsService(IReportStorages reportStorages, IBreackdownStorage b
     {
         try
         {
-            //return await reportStorages.SelectById(id);
-            return null;
+            return await reportStorages.SelectById(id);
+           
         }
         catch (Exception)
         {
@@ -46,12 +46,12 @@ public class ReportsService(IReportStorages reportStorages, IBreackdownStorage b
         try
         {
             await reportStorages.InsertReportHeader(model);
-            foreach (var breackdown in model.Breackdowns)
+           /* foreach (var breackdown in model.Breackdowns)
             {
                 breackdown.ReportId = model.Id;
                 breackdown.Id = Guid.NewGuid();
                 await breackdownStorage.InsertBreackdown(breackdown);
-            }
+            }*/
             s.Complete();
             return 1;
         }

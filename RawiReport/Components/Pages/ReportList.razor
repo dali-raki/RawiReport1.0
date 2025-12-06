@@ -1,17 +1,18 @@
 ﻿@page "/reports"
 @using RawiReport.Domains.Models.Reports
+@using RawiReportUI.Modals.ReportsDaily
 @rendermode InteractiveServer
 
 <div class=" mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg space-y-6">
 
     <!-- Header -->
-    <div class="">
+    <div>
         <h1 class="text-2xl font-bold text-gray-800">Report Active</h1>
-
-        <a href="/report-create"
-           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+      
+        <button @onclick="showmodal"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg">
             + Create New Report
-        </a>
+        </button>
         @if (ReportsActive == null)
         {
             <p class="text-gray-600 text-sm">Loading reports...</p>
@@ -26,6 +27,7 @@
                 <table class="w-full border rounded-lg shadow-sm text-sm">
                     <thead class="bg-gray-100 text-gray-700">
                         <tr>
+                            <th class="px-4 py-2 text-left">Leader</th>
                             <th class="px-4 py-2 text-left">Date</th>
                             <th class="px-4 py-2 text-left">Start</th>
                             <th class="px-4 py-2 text-left">End</th>
@@ -41,10 +43,10 @@
                         @foreach (var report in ReportsActive)
                         {
                             <tr class="border-b hover:bg-gray-50">
-
+                                <td class="px-4 py-2">@report.Leader</td>
                                 <td class="px-4 py-2">@report.Date</td>
-                                <td class="px-4 py-2">@report.StartTime</td>
-                                <td class="px-4 py-2">@report.EndTime</td>
+                                <td class="px-4 py-2">@report.StartTime.ToString("hh:mm")</td>
+                                <td class="px-4 py-2">@report.EndTime.ToString("hh:mm")</td>
                                 <td class="px-4 py-2">@report.Speed</td>
                                 <td class="px-4 py-2">@report.ProductId</td>
                                 <td class="px-4 py-2">''
@@ -106,8 +108,8 @@
                         <tr class="border-b hover:bg-gray-50">
 
                             <td class="px-4 py-2">@report.Date</td>
-                            <td class="px-4 py-2">@report.StartTime</td>
-                            <td class="px-4 py-2">@report.EndTime</td>
+                            <td class="px-4 py-2">@report.StartTime.ToString("hh:mm")</td>
+                            <td class="px-4 py-2">@report.EndTime.ToString("hh:mm")</td>
                             <td class="px-4 py-2">@report.Speed</td>
                             <td class="px-4 py-2">@report.ProductId</td>
                             <td class="px-4 py-2">
@@ -128,3 +130,4 @@
     }
 </div>
 </div>
+<ReportHeaderModal @ref="ReportHeaderlink" />

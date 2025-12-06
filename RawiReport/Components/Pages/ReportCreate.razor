@@ -3,61 +3,67 @@
 @rendermode InteractiveServer
 
 <EditForm Model="reportInfo" OnValidSubmit="savereport">
-    <div class="bg-white shadow rounded-xl p-6 mb-6">
-        <h2 class="text-lg font-semibold mb-4">Operation Details</h2>
+    <div class="mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Report Details</h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
+            <!-- Leader -->
+            <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1">Leader</label>
+                <p class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-800">
+                    @reportInfo.Leader
+                </p>
+            </div>
 
             <!-- Date -->
             <div>
-                <label class="block text-sm text-gray-600 mb-1">Date</label>
-                <InputDate @bind-Value="reportInfo.Date" class="w-full border rounded-lg px-3 py-2" />
+                <label class="block text-sm font-medium text-gray-600 mb-1">Date</label>
+                <p class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-800">
+                    @reportInfo.Date.ToString("yyyy-MM-dd")
+                </p>
             </div>
 
             <!-- Format -->
             <div>
-                <label class="block text-sm text-gray-600 mb-1">Format</label>
-                <InputSelect @bind-Value="reportInfo.ProductId" class="w-full border rounded-lg px-3 py-2">
-                    <option value="" selected disabled>Select format</option>
-                    <option value="L2">2L</option>
-                    <option value="L1_5">1.5L</option>
-                    <option value="L1">1L</option>
-                    <option value="L0_5">0.5L</option>
-                </InputSelect>
+                <label class="block text-sm font-medium text-gray-600 mb-1">Format</label>
+                <p class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-800">
+                    @reportInfo.ProductId
+                </p>
             </div>
 
-            <!-- Objective -->
-            <div>
-                <label class="block text-sm text-gray-600 mb-1">Objective</label>
-                <InputText @bind-Value="reportInfo.Objective" class="w-full border rounded-lg px-3 py-2"
-                           placeholder="Enter objective" />
+            <!-- Objective (Full Width) -->
+            <div class="md:col-span-3">
+                <label class="block text-sm font-medium text-gray-600 mb-1">Objective</label>
+                <p class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-800">
+                    @reportInfo.Objective
+                </p>
             </div>
 
-            <!-- Enter Hour + Exit Hour -->
+            <!-- Time Info -->
             <div>
-                <label class="block text-sm text-gray-600 mb-1">Entre Hour</label>
-                <input typeof="time" @bind="reportInfo.StartTime" class="w-full border rounded-lg px-3 py-2" />
+                <label class="block text-sm font-medium text-gray-600 mb-1">Enter Hour</label>
+                <p class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-800">
+                    @reportInfo.StartTime.ToString(@"hh\:mm")
+                </p>
 
-                <label class="block text-sm text-gray-600 mb-1">Exit Hour</label>
-                <input typeof="time" @bind="reportInfo.EndTime" class="w-full border rounded-lg px-3 py-2" />
+                <label class="block text-sm font-medium text-gray-600 mt-4 mb-1">Exit Hour</label>
+                <p class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-800">
+                    @reportInfo.EndTime.ToString(@"hh\:mm")
+                </p>
             </div>
 
             <!-- Speed -->
             <div>
-                <label class="block text-sm text-gray-600 mb-1">Speed (Beh)</label>
-                <InputNumber @bind-Value="reportInfo.Speed" class="w-full border rounded-lg px-3 py-2"
-                             placeholder="Enter speed" />
+                <label class="block text-sm font-medium text-gray-600 mb-1">Speed (Beh)</label>
+                <p class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-800">
+                    @reportInfo.Speed
+                </p>
             </div>
 
         </div>
-
-        <div class="flex justify-between items-center mb-4">
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Create Report</button>
-        </div>
-
-
     </div>
+
     <div class="bg-white shadow rounded-xl p-6">
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Machine Breakdowns</h2>
@@ -109,4 +115,4 @@
     </div>
 </EditForm>
 
-<BreackdownModal @ref="breackdownlink" Machines="lismachines" OnSave="selectbreakdown" />
+<BreackdownModal @ref="breackdownlink" Machines="lismachines" OnSave="@selectbreakdown" ReportId="Id" Edit="@operationstatus"/>

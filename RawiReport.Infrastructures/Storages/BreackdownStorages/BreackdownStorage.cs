@@ -17,7 +17,7 @@ public class BreackdownStorage(IConfiguration configuration) : IBreackdownStorag
         VALUES(@aId,@aReportId,@aMachineId,@aStoppingTime,@aStoppingDuration,@aErrorCode,@aDescription)";
 
     private readonly string UpdateBreackdownQuery = @"UPDATE report.Breakdown
-        SET MachineId = @aMachineId, StoppingTime = @aStoppingTime,StoppingDuration = @SatoppingDuration, ErrorCode = @aErrorCode,Description = @aDescription
+        SET MachineId = @aMachineId, StoppingTime = @aStoppingTime,StoppingDuration = @aStoppingDuration, ErrorCode = @aErrorCode,Description = @aDescription
         WHERE Id = @aId";
 
     private readonly string DeleteBreackdownQuery = @"DELETE FROM report.Breakdown
@@ -33,7 +33,9 @@ public class BreackdownStorage(IConfiguration configuration) : IBreackdownStorag
         cmd.Parameters.AddWithValue("@aStoppingTime", model.StoppingTime);
         cmd.Parameters.AddWithValue("@aStoppingDuration", model.DurationStopping);
         cmd.Parameters.AddWithValue("@aErrorCode", model.ErrorCode);
-        cmd.Parameters.AddWithValue("@aDescription", model.Description);
+        cmd.Parameters.AddWithValue("@aDescription",
+        string.IsNullOrEmpty(model.Description) ? "No comment" : model.Description);
+
 
         await con.OpenAsync();
         object? result = await cmd.ExecuteScalarAsync();

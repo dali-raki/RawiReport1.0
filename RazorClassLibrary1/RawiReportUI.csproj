@@ -15,4 +15,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RawiReport.Apps\RawiReport.Apps.csproj" />
+    <ProjectReference Include="..\RawiReport.Domains\RawiReport.Domains.csproj" />
+  </ItemGroup>
+
 </Project>

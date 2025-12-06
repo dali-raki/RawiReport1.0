@@ -22,73 +22,77 @@ public class ReportStorages(IConfiguration configuration) : IReportStorages
 
 
     private const string InsertHeaderQuery = @"INSERT INTO report.Header
-        (Id,ProductId,Date,StartTime,EndTime,Objective,Speed,CreateBy,CreateAt,UpdateLast,State)
-        VALUES(@aId,@aProductId,@aDate,@aStartTime,@aEndTime,@aObjective,@aSpeed,@aCreateBy,@aCreateAt,@aUpdateLast,@aState);";
+        (Id,Leader,ProductId,Date,StartTime,EndTime,Objective,Speed,CreateBy,CreateAt,UpdateLast,State)
+        VALUES(@aId,@aLeader,@aProductId,@aDate,@aStartTime,@aEndTime,@aObjective,@aSpeed,@aCreateBy,@aCreateAt,@aUpdateLast,@aState);";
 
 
     private const string UpdateHeaderQuery = @"UPDATE report.Header 
-        SETProductId = @aProductId,Date = @aDate,StartTime = @aStartTime,EndTime = @aEndTime,
+        SETProductId = @aProductId, Leader = @aLeader,Date = @aDate,StartTime = @aStartTime,EndTime = @aEndTime,
         Objective = @aObjective,Speed = @aSpeed,CreateBy = @aCreateBy,UpdateLast = @aUpdateLast,State = @aState
         WHERE Id = @aId;";
 
     private const string DeleteHeaderQuery = @"DELETE FROM report.Header
         WHERE Id = @aId;";
 
-    private const string getByUdProc = "sp_GetReportById";
+    private const string getByUdProc = "[report].[GetById]";
 
 
 
-    /* public async ValueTask<ReportInfo> SelectById(Guid id)
-     {
-         await using var connection = new SqlConnection(connectionString);
-         await using var command = new SqlCommand(getByUdProc, connection);
-         command.CommandType = CommandType.StoredProcedure;
+    public async ValueTask<ReportInfo> SelectById(Guid id)
+    {
+        await using var connection = new SqlConnection(connectionString);
+        await using var command = new SqlCommand(getByUdProc, connection);
+        command.CommandType = CommandType.StoredProcedure;
 
-         // Add the parameter
-         command.Parameters.AddWithValue("@aId", id);
+        command.Parameters.AddWithValue("@aId", id);
 
-         await connection.OpenAsync();
+        await connection.OpenAsync();
 
-         // Use DataSet to handle multiple result sets
-         DataSet ds = new DataSet();
-         SqlDataAdapter da = new SqlDataAdapter(command);
-         da.Fill(ds);
+        var ds = new DataSet();
+        var da = new SqlDataAdapter(command);
+        da.Fill(ds);
 
-         // First table: report header
-         var reportTable = ds.Tables[0];
-         var report = new ReportInfo();
+        var reportTable = ds.Tables[0];
+        var report = new ReportInfo();
 
-         if (reportTable.Rows.Count > 0)
-         {
-             var row = reportTable.Rows[0];
-             report.Id = (Guid)row["Id"];
-             report.ProductId = (Guid)row["ProductId"];
-             report.Date = (DateOnly)row["Date"];
-             // Map other header columns here
-         }
+        if (reportTable.Rows.Count > 0)
+        {
+            var row = reportTable.Rows[0];
+            report.Id = (Guid)row["Id"];
+            report.Leader = (string)row["Leader"];
+            report.ProductId = (string)row["ProductId"];
+            report.Date = DateOnly.FromDateTime((DateTime)row["Date"]);
+            report.CreatedBy = (Guid)row["CreateBy"];
+            report.StartTime = (DateTime)row["StartTime"];
+            report.EndTime = (DateTime)row["EndTime"];
+            report.Objective = (string) row["Objective"];
+            report.Speed = (int)row["Speed"];
+            report.CreatedAt = (DateTime)row["CreateAt"];
+            report.Updatedlast = (DateTime)row["UpdateLast"];
+            report.reportStatus =(ReportStatus)(int) row["State"];
+        }
 
-         // Second table: breakdowns
-         var breakdownTable = ds.Tables[1];
-         report.Breakdowns = new List<BreackdownInfo>();
+        var breakdownTable = ds.Tables[1];
+        report.BreackdownList = new List<BreackdownInfo>();
 
-         foreach (DataRow row in breakdownTable.Rows)
-         {
-             var breakdown = new BreackdownInfo
-             {
-                 BreakdownId = (Guid)row["BreakdownId"],
-                 ReportId = (Guid)row["ReportId"],
-                 MachineId = (int)row["MachineId"],
-                 MachineName = (string) row["MachineName"],
-                 StoppingTime = (DateTime)row["StoppingTime"],
-                 DurationStopping = (string)row["StoppingDuration"],
-                 ErrorCode = Convert.ToInt32(row["ErrorCode"]),
-                 Description = (string) row["Description"]
-             };
-             report.Breackdowns.Add(breakdown);
-         }
+        foreach (DataRow row in breakdownTable.Rows)
+        {
+            var breakdown = new BreackdownInfo
+            {
+                BreakdownId = (Guid)row["BreakdownId"],
+                ReportId = (Guid)row["ReportId"],
+                MachineId = (int)row["MachineId"],
+                MachineName = row["MachineName"] as string,
+                StoppingTime = (DateTime)row["StoppingTime"],
+                DurationStopping = row["StoppingDuration"] as string,
+                ErrorCode = (string)row["ErrorCode"],
+                Description = row["Description"] as string
+            };
+            report.BreackdownList.Add(breakdown);
+        }
 
-         return report;
-     }*/
+        return report;
+    }
 
     public async ValueTask<List<ReportHeaderModel>> SelectAllReportHeader(ReportStatus status)
     {
@@ -113,9 +117,10 @@ public class ReportStorages(IConfiguration configuration) : IReportStorages
         using SqlCommand cmd = new(InsertHeaderQuery, con);
 
         cmd.Parameters.AddWithValue("@aId", model.Id);
+        cmd.Parameters.AddWithValue("@aLeader", model.Leader);
         cmd.Parameters.AddWithValue("@aProductId", model.ProductId);
         cmd.Parameters.AddWithValue("@aDate", model.Date);
-        cmd.Parameters.AddWithValue("@aStartTime", model.StartTime.ToString(@"hh\:mm"));
+        cmd.Parameters.AddWithValue("@aStartTime", model.StartTime);
         cmd.Parameters.AddWithValue("@aEndTime", model.EndTime);
         cmd.Parameters.AddWithValue("@aObjective", model.Objective);
         cmd.Parameters.AddWithValue("@aSpeed", model.Speed);
@@ -134,6 +139,7 @@ public class ReportStorages(IConfiguration configuration) : IReportStorages
         using SqlCommand cmd = new(UpdateHeaderQuery, con);
 
         cmd.Parameters.AddWithValue("@aId", model.Id);
+        cmd.Parameters.AddWithValue("@aLeader", model.Leader);
         cmd.Parameters.AddWithValue("@aProductId", model.ProductId);
         cmd.Parameters.AddWithValue("@aDate", model.Date);
         cmd.Parameters.AddWithValue("@aStartTime", model.StartTime);
@@ -166,10 +172,11 @@ public class ReportStorages(IConfiguration configuration) : IReportStorages
         return new ReportHeaderModel
         {
             Id = (Guid)r["Id"],
+            Leader = (string)r["Leader"],
             ProductId = (string)r["ProductId"],
             Date = DateOnly.FromDateTime((DateTime)r["Date"]),
-            StartTime = (TimeSpan)r["StartTime"],
-            EndTime = (TimeSpan)r["EndTime"],
+            StartTime = (DateTime)r["StartTime"],
+            EndTime = (DateTime)r["EndTime"],
             Objective = (string)r["Objective"],
             Speed = (int)r["Speed"],
             CreateBy = (Guid)r["CreateBy"],

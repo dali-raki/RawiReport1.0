@@ -11,7 +11,7 @@
     <ProjectReference Include="..\RawiReport.Apps\RawiReport.Apps.csproj" />
     <ProjectReference Include="..\RawiReport.Domains\RawiReport.Domains.csproj" />
     <ProjectReference Include="..\RawiReport.Implementations\RawiReport.Implementations.csproj" />
-    <ProjectReference Include="..\RawiReportUI\RawiReportUI.csproj" />
+    <ProjectReference Include="..\RazorClassLibrary1\RawiReportUI.csproj" />
   </ItemGroup>
 
 </Project>

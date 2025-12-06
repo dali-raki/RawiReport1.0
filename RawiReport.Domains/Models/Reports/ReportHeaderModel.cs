@@ -8,9 +8,10 @@ namespace RawiReport.Domains.Models.Reports;
 public class ReportHeaderModel
 {
     public Guid Id { get; set; }
+    public string Leader { get; set; }
     public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
-    public TimeSpan StartTime { get; set; }
-    public TimeSpan EndTime { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; } 
     public string ProductId { get; set; }
     public string Objective { get; set; }
     public int Speed { get; set; }

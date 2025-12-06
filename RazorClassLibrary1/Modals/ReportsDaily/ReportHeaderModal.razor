@@ -1,0 +1,77 @@
+﻿@using RawiReport.Apps.Apps.ReportApps
+@if (showModal)
+{
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50">
+        <!-- Modal container -->
+        <div class="bg-white w-full max-w-2xl rounded-xl shadow-xl p-6 animate-fadeIn">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Create Report</h2>
+                <button @onclick="() => showModal = false" class="text-gray-500 hover:text-red-500 text-xl">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Leader -->
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Leader</label>
+                    <InputText @bind-Value="reportInfo.Leader" class="w-full border rounded-lg px-3 py-2"
+                               placeholder="Enter Leader" />
+                </div>
+                <!-- Date -->
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Date</label>
+                    <InputDate @bind-Value="reportInfo.Date" class="w-full border rounded-lg px-3 py-2" />
+                </div>
+
+                <!-- Format -->
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Format</label>
+                    <InputSelect @bind-Value="reportInfo.ProductId" class="w-full border rounded-lg px-3 py-2">
+                        <option selected disabled>Select format</option>
+                        <option value="2L">2L</option>
+                        <option value="1.5L">1.5L</option>
+                        <option value="1L">1L</option>
+                        <option value="0.5L">0.5L</option>
+                    </InputSelect>
+                </div>
+
+                <!-- Objective -->
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Objective</label>
+                    <InputText @bind-Value="reportInfo.Objective" class="w-full border rounded-lg px-3 py-2"
+                               placeholder="Enter objective" />
+                </div>
+
+                <!-- Enter / Exit -->
+                <div class="col-span-1 md:col-span-3">
+                    <label class="block text-sm text-gray-600 mb-1">Enter Hour</label>
+                    <input type="time" @bind="reportInfo.StartTime"
+                           class="w-full border rounded-lg px-3 py-2 mb-3" />
+
+                    <label class="block text-sm text-gray-600 mb-1">Exit Hour</label>
+                    <input type="time" @bind="reportInfo.EndTime"
+                           class="w-full border rounded-lg px-3 py-2" />
+                </div>
+
+                <!-- Speed -->
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Speed (Beh)</label>
+                    <InputNumber @bind-Value="reportInfo.Speed" class="w-full border rounded-lg px-3 py-2"
+                                 placeholder="Enter speed" />
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-end mt-6">
+                <button @onclick="savereport"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Save Report
+                </button>
+            </div>
+        </div>
+    </div>
+}
