@@ -37,6 +37,31 @@ public class ReportStorages(IConfiguration configuration) : IReportStorages
     private const string getByUdProc = "[report].[GetById]";
 
 
+    // the next Querys used just in this time to insert static data of report
+    private const string InsertConsumptionQuery = @"
+INSERT INTO [report].[Consumption]
+([Id],[ReportId],[RawMaterials],[Supplier],[Quantity],[Loss],[Remark])
+VALUES
+(@aId,@aReportId,@aRawMaterials,@aSupplier,@aQuantity,@aLoss,@aRemark);";
+
+
+
+
+    private const string InsertLossesQuery = @"
+INSERT INTO [report].[Losses]
+( [Id],[ReportId],[Bottles],[PreformesSouffleuse],[BottlesSouffleuse],[Palettes],[TotalPalettes],[TotalFardeaux])
+VALUES
+( @aId,@aReportId, @aBottles,@aPreformeSouffleuse,@aPostformeSouffleuse,@aPalettes,@aTotalPalettes, @aTotalFardeaux);";
+
+
+    private const string UpdateReportStateQuery = @"
+UPDATE [report].[Header]
+SET 
+    [State] = @aState,
+    [UpdateLast] = @aUpdateLast
+WHERE 
+    [Id] = @aId;
+";
 
     public async ValueTask<ReportInfo> SelectById(Guid id)
     {
@@ -185,4 +210,62 @@ public class ReportStorages(IConfiguration configuration) : IReportStorages
             ReportStatus = (ReportStatus)( (int)r["State"])
         };
     }
+
+
+    // the next fuctions used just in this time to insert static data of report
+
+
+
+    public async ValueTask<int> InsertConsumption(ReportConsumptionModel model)
+    {
+        using SqlConnection con = new(connectionString);
+        using SqlCommand cmd = new(InsertConsumptionQuery, con);
+
+        cmd.Parameters.AddWithValue("@aId", model.Id);
+        cmd.Parameters.AddWithValue("@aReportId", model.ReportId);
+        cmd.Parameters.AddWithValue("@aRawMaterials", model.MatierePremiere ?? "");
+        cmd.Parameters.AddWithValue("@aSupplier", model.Supplier ?? "");
+        cmd.Parameters.AddWithValue("@aQuantity", model.Quantity ?? "");
+        cmd.Parameters.AddWithValue("@aLoss", model.Loss ?? "");
+        cmd.Parameters.AddWithValue("@aRemark", model.Remark ?? "");
+
+        await con.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync();
+    }
+
+
+    public async ValueTask<int> InsertLosses(ReportLosseModel model)
+    {
+        using SqlConnection con = new(connectionString);
+        using SqlCommand cmd = new(InsertLossesQuery, con);
+
+        cmd.Parameters.AddWithValue("@aId", model.Id);
+        cmd.Parameters.AddWithValue("@aReportId", model.ReportId);
+        cmd.Parameters.AddWithValue("@aBottles", model.Bottles ?? "");
+        cmd.Parameters.AddWithValue("@aPreformeSouffleuse", model.PreformeSouffleuse ?? "");
+        cmd.Parameters.AddWithValue("@aPostformeSouffleuse", model.PostformeSouffleuse ?? "");
+        cmd.Parameters.AddWithValue("@aPalettes", model.Palettes ?? "");
+        cmd.Parameters.AddWithValue("@aTotalPalettes", model.TotalPalettes ?? "");
+        cmd.Parameters.AddWithValue("@aTotalFardeaux", model.TotalFardeaux ?? "");
+
+        await con.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync();
+    }
+
+
+    public async ValueTask<int> UpdateReportState(Guid reportId, ReportStatus newState)
+    {
+        using SqlConnection con = new(connectionString);
+        using SqlCommand cmd = new(UpdateReportStateQuery, con);
+
+        cmd.Parameters.AddWithValue("@aId", reportId);
+        cmd.Parameters.AddWithValue("@aState",(ReportStatus)(int)newState);
+        cmd.Parameters.AddWithValue("@aUpdateLast", DateTime.Now);
+
+        await con.OpenAsync();
+        return await cmd.ExecuteNonQueryAsync();
+    }
+
+
+
 }

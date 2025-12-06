@@ -42,27 +42,16 @@ public class ReportsService(IReportStorages reportStorages, IBreackdownStorage b
 
     public async ValueTask<int> CreateReportHeader(ReportHeaderModel model)
    {
-        using var s = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         try
         {
-            await reportStorages.InsertReportHeader(model);
-           /* foreach (var breackdown in model.Breackdowns)
-            {
-                breackdown.ReportId = model.Id;
-                breackdown.Id = Guid.NewGuid();
-                await breackdownStorage.InsertBreackdown(breackdown);
-            }*/
-            s.Complete();
-            return 1;
+            return await reportStorages.InsertReportHeader(model);
+          
         }
         catch (Exception)
         {
             throw;
         }
-        finally
-        {
-            s.Dispose();
-        }
+     
     }
 
     public ValueTask<int> SetReportHeader(ReportHeaderModel model)
@@ -82,6 +71,48 @@ public class ReportsService(IReportStorages reportStorages, IBreackdownStorage b
         try
         {
             return reportStorages.DeleteReportHeader(id);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+
+
+    // the next fuctions used just in this time to insert static data of report
+
+    public async ValueTask<int> CreateConsumption(ReportConsumptionModel model)
+    {
+         try
+        {
+            return await reportStorages.InsertConsumption(model);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+
+    }
+
+
+    public async ValueTask<int> CreateLosses(ReportLosseModel model)
+    {
+        try
+        {
+            return await reportStorages.InsertLosses(model);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public async ValueTask<int> ChangeReportState(Guid reportId, ReportStatus newState)
+    {
+        try
+        {
+            return await reportStorages.UpdateReportState(reportId, newState);
         }
         catch (Exception)
         {

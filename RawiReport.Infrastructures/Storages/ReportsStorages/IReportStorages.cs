@@ -13,5 +13,13 @@ namespace RawiReport.Infrastructures.Storages.ReportsStorages
         ValueTask<int> UpdateReportHeader(ReportHeaderModel model);
 
         ValueTask<int> DeleteReportHeader(Guid id);
+
+
+        // the next fuctions used just in this time to insert static data of report
+
+        ValueTask<int> InsertConsumption(ReportConsumptionModel model);
+        ValueTask<int> InsertLosses(ReportLosseModel model);
+
+        ValueTask<int> UpdateReportState(Guid reportId, ReportStatus newState);
     }
 }
